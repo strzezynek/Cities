@@ -98,6 +98,7 @@ public class CitiesFragment extends SherlockFragment {
                 return true;
             }
         });
+        citiesList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
         return rootView;
     }
@@ -144,6 +145,8 @@ public class CitiesFragment extends SherlockFragment {
         String[] selectionArgs = {String.valueOf(cityId)};
         getActivity().getContentResolver().delete(CityProvider.CONTENT_URI, selection,
                 selectionArgs);
+
+        showCityList();
     }
 
     private boolean isCityEditFilled() {
