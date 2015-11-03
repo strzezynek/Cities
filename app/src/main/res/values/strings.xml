@@ -5,6 +5,7 @@
     <string name="title_city_fragment">Wróć</string>
 
     <string name="action_back">Wróć</string>
+    <string name="action_delete">delete</string>
 
     <string name="label_city_name">Miejscowość: </string>
     <string name="label_commune_name">Gmina: </string>

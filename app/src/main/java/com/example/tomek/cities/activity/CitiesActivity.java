@@ -35,7 +35,7 @@ import java.net.URLEncoder;
  * Created by Tomek on 2015-10-31.
  */
 public class CitiesActivity extends SherlockFragmentActivity
-        implements CitiesFragment.OnItemSelectedListener {
+        implements CitiesFragment.OnItemSelectedListener, CitiesFragment.OnItemLongClickListener {
 
     private static final String TAG = CitiesActivity.class.getSimpleName();
 
@@ -66,7 +66,6 @@ public class CitiesActivity extends SherlockFragmentActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
 
         return true;
     }
@@ -93,6 +92,14 @@ public class CitiesActivity extends SherlockFragmentActivity
     @Override
     public void onItemSelected(String cityName) {
         makeApiRequest(cityName);
+        if (mode != null) {
+            mode.finish();
+        }
+    }
+
+    @Override
+    public void onItemLongClick(int position) {
+        mode = startActionMode(new MyActionMode());
     }
 
     private void makeApiRequest(String cityName) {
@@ -167,11 +174,9 @@ public class CitiesActivity extends SherlockFragmentActivity
     private final class MyActionMode implements ActionMode.Callback {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            //Used to put dark icons on light action bar
-//            boolean isLight = SampleList.THEME == R.style.Theme_Sherlock_Light;
 
-            menu.add("Remove")
-//                    .setIcon(isLight ? R.drawable.ic_compose_inverse : R.drawable.ic_compose)
+            menu.add(getString(R.string.action_delete))
+                    .setIcon(R.mipmap.ic_delete)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
 
@@ -185,7 +190,8 @@ public class CitiesActivity extends SherlockFragmentActivity
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            Toast.makeText(CitiesActivity.this, "Got click: " + item, Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Item id: " + item.getItemId());
+            Log.d(TAG, "Item name: " + item.getTitle());
             mode.finish();
             return true;
         }

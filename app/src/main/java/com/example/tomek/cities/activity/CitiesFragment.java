@@ -32,7 +32,8 @@ public class CitiesFragment extends SherlockFragment {
     private ListView citiesList;
     private CityAdapter cityAdapter;
 
-    private OnItemSelectedListener listener;
+    private OnItemSelectedListener selectedListener;
+    private OnItemLongClickListener longClickListener;
 
     public CitiesFragment() {
 
@@ -84,7 +85,14 @@ public class CitiesFragment extends SherlockFragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String cityName = (String) adapterView.getItemAtPosition(i);
-                listener.onItemSelected(cityName);
+                selectedListener.onItemSelected(cityName);
+            }
+        });
+        citiesList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                longClickListener.onItemLongClick(i);
+                return true;
             }
         });
 
@@ -95,7 +103,8 @@ public class CitiesFragment extends SherlockFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            listener = (OnItemSelectedListener) activity;
+            selectedListener = (OnItemSelectedListener) activity;
+            longClickListener = (OnItemLongClickListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -105,7 +114,8 @@ public class CitiesFragment extends SherlockFragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        listener = null;
+        selectedListener = null;
+        longClickListener = null;
     }
 
     private void addCity(String cityName) {
