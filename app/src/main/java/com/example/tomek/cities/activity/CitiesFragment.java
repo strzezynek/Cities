@@ -122,4 +122,8 @@ public class CitiesFragment extends SherlockFragment {
         public void onItemSelected(String cityName);
     }
 
+    public interface OnItemLongClickListener {
+        public void onItemLongClick(int position);
+    }
+
 }

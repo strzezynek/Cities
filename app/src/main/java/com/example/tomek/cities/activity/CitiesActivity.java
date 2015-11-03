@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.android.volley.Request;
@@ -47,6 +48,8 @@ public class CitiesActivity extends SherlockFragmentActivity
     private Fragment fragment;
 
     private boolean showingList;
+
+    private ActionMode mode;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -159,6 +162,37 @@ public class CitiesActivity extends SherlockFragmentActivity
         fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(getString(R.string.title_city_fragment));
+    }
+
+    private final class MyActionMode implements ActionMode.Callback {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            //Used to put dark icons on light action bar
+//            boolean isLight = SampleList.THEME == R.style.Theme_Sherlock_Light;
+
+            menu.add("Remove")
+//                    .setIcon(isLight ? R.drawable.ic_compose_inverse : R.drawable.ic_compose)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            Toast.makeText(CitiesActivity.this, "Got click: " + item, Toast.LENGTH_SHORT).show();
+            mode.finish();
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+        }
     }
 
 }
