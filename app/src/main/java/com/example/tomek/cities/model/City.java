@@ -1,5 +1,7 @@
 package com.example.tomek.cities.model;
 
+import android.provider.BaseColumns;
+
 /**
  * Created by Tomek on 2015-11-01.
  */
@@ -63,6 +65,10 @@ public class City {
 
     public void setCountry(String country) {
         mCountry = country;
+    }
+
+    public class CityColumns implements BaseColumns {
+        public static final String NAME = "name";
     }
 
 }
