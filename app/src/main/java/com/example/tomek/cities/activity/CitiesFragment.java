@@ -1,6 +1,8 @@
 package com.example.tomek.cities.activity;
 
 import android.app.Activity;
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,7 +18,9 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.example.tomek.cities.CitiesApp;
 import com.example.tomek.cities.R;
-import com.example.tomek.cities.adapter.CityAdapter;
+import com.example.tomek.cities.adapter.CityCursorAdapter;
+import com.example.tomek.cities.model.City;
+import com.example.tomek.cities.provider.CityProvider;
 
 /**
  * Created by Tomek on 2015-10-31.
@@ -30,7 +34,8 @@ public class CitiesFragment extends SherlockFragment {
     private EditText cityEdit;
     private ImageButton addCityBtn;
     private ListView citiesList;
-    private CityAdapter cityAdapter;
+    private CityCursorAdapter cityAdapter;
+    private Cursor cityCursor;
 
     private OnItemSelectedListener selectedListener;
     private OnItemLongClickListener longClickListener;
@@ -48,8 +53,6 @@ public class CitiesFragment extends SherlockFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        app = CitiesApp.getInstance();
     }
 
     @Override
@@ -65,33 +68,33 @@ public class CitiesFragment extends SherlockFragment {
                 if (isCityEditFilled()) {
                     addCity(cityEdit.getText().toString());
                     cityEdit.setText("");
+                    showCityList();
                 } else {
                     Toast.makeText(getActivity(), getString(R.string.toast_enter_city),
                             Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
+        showCityList();
         citiesList = (ListView) rootView.findViewById(R.id.cities_list);
-        app = (CitiesApp) getActivity().getApplication();
-        if (getActivity() == null) {
-            Log.d(TAG, "activity null");
-        }
-        if (app.getCitiesNames() == null) {
-            Log.d(TAG, "cities names null");
-        }
-        cityAdapter = new CityAdapter(getActivity(), R.layout.item_city, app.getCitiesNames());
+        cityAdapter = new CityCursorAdapter(getActivity(), cityCursor);
         citiesList.setAdapter(cityAdapter);
         citiesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String cityName = (String) adapterView.getItemAtPosition(i);
+            public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
+                cityCursor.moveToPosition(pos);
+                String cityName = cityCursor.getString(
+                        cityCursor.getColumnIndexOrThrow(City.CityColumns.NAME));
                 selectedListener.onItemSelected(cityName);
             }
         });
         citiesList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                longClickListener.onItemLongClick(i);
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int pos, long l) {
+                citiesList.setItemChecked(pos, true);
+                view.setSelected(true);
+                longClickListener.onItemLongClick(pos);
                 return true;
             }
         });
@@ -107,7 +110,7 @@ public class CitiesFragment extends SherlockFragment {
             longClickListener = (OnItemLongClickListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnItemSelectedListener and OnItemLongClickListener");
         }
     }
 
@@ -119,13 +122,42 @@ public class CitiesFragment extends SherlockFragment {
     }
 
     private void addCity(String cityName) {
-        Log.d(TAG, "Adding city");
-        app.addCityName(cityName);
-        cityAdapter.notifyDataSetChanged();
+        Log.d(TAG, "Adding city to db");
+        getActivity().getContentResolver().insert(CityProvider.CONTENT_URI, getContentValues());
+    }
+
+    private ContentValues getContentValues() {
+        ContentValues values = new ContentValues();
+        values.put(City.CityColumns.NAME, cityEdit.getText().toString());
+        return values;
+    }
+
+    public void removeCity() {
+        int position = citiesList.getCheckedItemPosition();
+        citiesList.setItemChecked(position, false);
+        citiesList.setSelected(false);
+
+        cityCursor.moveToPosition(position);
+        int cityId = cityCursor.getInt(cityCursor.getColumnIndexOrThrow(City.CityColumns._ID));
+
+        String selection = City.CityColumns._ID + " = ?";
+        String[] selectionArgs = {String.valueOf(cityId)};
+        getActivity().getContentResolver().delete(CityProvider.CONTENT_URI, selection,
+                selectionArgs);
     }
 
     private boolean isCityEditFilled() {
         return !cityEdit.getText().toString().equals("");
+    }
+
+    public void showCityList(){
+        String[] projection = {};
+        cityCursor = getActivity().getContentResolver().query(CityProvider.CONTENT_URI, projection,
+                null, null, null);
+        if (cityAdapter != null) {
+            cityAdapter.swapCursor(cityCursor);
+            cityAdapter.notifyDataSetChanged();
+        }
     }
 
     public interface OnItemSelectedListener {

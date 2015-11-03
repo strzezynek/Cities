@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
-import android.support.annotation.Nullable;
 
 import com.example.tomek.cities.model.City;
 
@@ -18,6 +17,8 @@ import java.sql.SQLException;
  * Created by Tomek on 2015-11-03.
  */
 public class CityProvider extends ContentProvider{
+
+    public static final String TAG = "CityProvider";
 
     public static final String AUTHORITY = "com.example.tomek.cities.provider";
     public static final String PROVIDER_NAME = AUTHORITY + ".CityProvider";
@@ -30,7 +31,7 @@ public class CityProvider extends ContentProvider{
     public static final String[] ALL_COLUMNS = new String[]{};
     public static final String DATABASE_NAME = "CityProvider";
     public static final int DATABASE_VERSION = 1;
-    public static final String TAG = "CityProvider";
+
 
     public static final String CREATE_SQL = "CREATE TABLE " + CITY_TABLE + " ("
             + City.CityColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -55,7 +56,7 @@ public class CityProvider extends ContentProvider{
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         projection = projection == null ? ALL_COLUMNS : projection;
 
-        sortOrder = sortOrder == null ? City.CityColumns.NAME : sortOrder;
+        sortOrder = sortOrder == null ? City.CityColumns._ID : sortOrder;
         SQLiteDatabase database = databaseHelper.getReadableDatabase();
 
         switch (uriMatcher.match(uri)){

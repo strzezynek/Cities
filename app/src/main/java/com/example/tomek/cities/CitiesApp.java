@@ -22,22 +22,12 @@ public class CitiesApp extends Application {
 
     private RequestQueue mRequestQueue;
 
-    private List<String> citiesNames;// = new ArrayList<String>();
+    private List<String> citiesNames;
 
     public void onCreate() {
         super.onCreate();
         mInstance = this;
         citiesNames = new ArrayList<String>();
-//        citiesNames.add("Radom");
-//        citiesNames.add("Krakow");
-//        citiesNames.add("Kraków");
-//        citiesNames.add("Gozd");
-//        citiesNames.add("Warszawa");
-//        citiesNames.add("Poznań");
-//        citiesNames.add("Poznan");
-//        citiesNames.add("Wrocław");
-//        citiesNames.add("Wroclaw");
-//        citiesNames.add("Nowy Targ");
     }
 
     public static synchronized CitiesApp getInstance() {
@@ -51,7 +41,6 @@ public class CitiesApp extends Application {
     public void addCityName(String cityName) {
         Log.d(TAG, "Adding city");
         citiesNames.add(cityName);
-        Log.d(TAG, "Cities: " + citiesNames.size());
     }
 
     public void clearCitiesNames() {

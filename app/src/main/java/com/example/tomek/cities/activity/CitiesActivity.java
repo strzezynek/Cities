@@ -14,19 +14,12 @@ import com.actionbarsherlock.view.MenuItem;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.example.tomek.cities.CitiesApp;
 import com.example.tomek.cities.R;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -74,7 +67,6 @@ public class CitiesActivity extends SherlockFragmentActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
-//            showCitiesFragment();
             onBackPressed();
         }
         return true;
@@ -132,8 +124,6 @@ public class CitiesActivity extends SherlockFragmentActivity
     private String[] parseResponseToCityDetails(String json) {
         String[] cityDetails = null;
         Log.d(TAG, json);
-//        JsonElement jsonElement = new JsonParser().parse(json);
-//        JsonObject jsonObject = jsonElement.getAsJsonObject();
         JsonParser parser = new JsonParser();
         JsonObject jsonObject = (JsonObject) parser.parse(json);
         String success = jsonObject.get("status").getAsString();
@@ -179,7 +169,6 @@ public class CitiesActivity extends SherlockFragmentActivity
                     .setIcon(R.mipmap.ic_delete)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
-
             return true;
         }
 
@@ -190,14 +179,19 @@ public class CitiesActivity extends SherlockFragmentActivity
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            Log.d(TAG, "Item id: " + item.getItemId());
-            Log.d(TAG, "Item name: " + item.getTitle());
+            String itemName = item.getTitle().toString();
+
+            if (itemName.equals(getString(R.string.action_delete))){
+                ((CitiesFragment)fragment).removeCity();
+            }
+
             mode.finish();
             return true;
         }
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
+
         }
     }
 
