@@ -15,6 +15,12 @@
             </intent-filter>
         </activity>
 
+        <provider
+            android:authorities="com.example.tomek.cities.provider.CityProvider"
+            android:name=".provider.CityProvider"
+            android:enabled="true"
+            android:multiprocess="true"/>
+
     </application>
 
 </manifest>
