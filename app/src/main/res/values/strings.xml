@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Cities</string>
+
+    <string name="title_cities_fragment">Zlokalizuj miasto</string>
+    <string name="title_city_fragment">Wróć</string>
+
+    <string name="action_back">Wróć</string>
+
+    <string name="label_city_name">Miejscowość: </string>
+    <string name="label_commune_name">Gmina: </string>
+    <string name="label_county_name">Powiat: </string>
+    <string name="label_voivodeship_name">Województwo: </string>
+    
+    <string name="btn_add_city">ADD</string>
+    
+    <string name="hint_enter_city">Podaj miasto</string>
+
+    <string name="toast_enter_city">Podaj nazwę miasta</string>
+    <string name="toast_wrong_city">Nazwa miasta niepoprawna</string>
+
+</resources>
