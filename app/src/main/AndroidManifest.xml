@@ -8,7 +8,8 @@
         android:theme="@style/Theme.Styled"
         android:name=".CitiesApp">
 
-        <activity android:name=".activity.CitiesActivity">
+        <activity android:name=".activity.CitiesActivity"
+            android:windowSoftInputMode="stateUnchanged|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

@@ -19,6 +19,8 @@ public class City {
     private String mVoivodeship;
     private String mCountry;
 
+    public AddressComponent[] address_components;
+
     public City(String name, String commune, String county, String voivodeship, String country) {
         mName = name;
         mCommune = commune;

@@ -1,9 +1,11 @@
 package com.example.tomek.cities.activity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -17,6 +19,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.example.tomek.cities.CitiesApp;
 import com.example.tomek.cities.R;
+import com.example.tomek.cities.model.City;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -32,6 +36,8 @@ public class CitiesActivity extends SherlockFragmentActivity
 
     private static final String TAG = CitiesActivity.class.getSimpleName();
 
+    private static final String ARG_SHOWING_LIST = "showing_list";
+
     private static final String urlBegin = "http://maps.googleapis.com/maps/api/geocode/json?address=";
     private static final String urlEnd = "&sensor=true&language=pl";
 
@@ -40,7 +46,7 @@ public class CitiesActivity extends SherlockFragmentActivity
     private FragmentManager fm;
     private Fragment fragment;
 
-    private boolean showingList;
+    private boolean showingList = true;
 
     private ActionMode mode;
 
@@ -54,7 +60,19 @@ public class CitiesActivity extends SherlockFragmentActivity
         ActionBar actionBar = getSupportActionBar();
 
         fm = getSupportFragmentManager();
-        showCitiesFragment();
+        if (savedInstanceState != null) {
+            showingList = savedInstanceState.getBoolean(ARG_SHOWING_LIST, true);
+            fragment = getSupportFragmentManager().getFragment(savedInstanceState, "content");
+        } else {
+            showSuitableFragment();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(ARG_SHOWING_LIST, showingList);
+        getSupportFragmentManager().putFragment(outState, "content", fragment);
     }
 
     @Override
@@ -101,15 +119,15 @@ public class CitiesActivity extends SherlockFragmentActivity
             e.printStackTrace();
         }
         String url = urlBegin + cityName + urlEnd;
-        Log.d(TAG, "Url: " + url);
         StringRequest jsonRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        String[] cityDetails = parseResponseToCityDetails(response);
-                        if (cityDetails != null) {
-                            showCityFragment(cityDetails);
-                        }
+//                        String[] cityDetails = parseResponseToCityDetails(response);
+                        parseResponseToCityDetails(response);
+//                        if (cityDetails != null) {
+                            showCityFragment();
+//                        }
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -121,26 +139,26 @@ public class CitiesActivity extends SherlockFragmentActivity
         app.addToRequestQueue(jsonRequest);
     }
 
-    private String[] parseResponseToCityDetails(String json) {
+    private void parseResponseToCityDetails(String json) {
         String[] cityDetails = null;
-        Log.d(TAG, json);
         JsonParser parser = new JsonParser();
         JsonObject jsonObject = (JsonObject) parser.parse(json);
         String success = jsonObject.get("status").getAsString();
         if (success.equals("OK")) {
             JsonArray resultsArray = jsonObject.getAsJsonArray("results");
-            JsonObject result = resultsArray.get(0).getAsJsonObject();
-            JsonArray addressComponents = result.getAsJsonArray("address_components");
-            cityDetails = new String[5];
-            for (int i = 0; i < cityDetails.length; i++) {
-                JsonObject detail = addressComponents.get(i).getAsJsonObject();
-                cityDetails[i] = detail.get("long_name").getAsString();
-                Log.d(TAG, cityDetails[i]);
-            }
-            return cityDetails;
+            Gson gson = new Gson();
+            City[] cities = gson.fromJson(resultsArray, City[].class);
+            app.citiesFound = cities;
         } else {
             Toast.makeText(this, getString(R.string.toast_wrong_city), Toast.LENGTH_SHORT).show();
-            return cityDetails;
+        }
+    }
+
+    private void showSuitableFragment() {
+        if (showingList) {
+            showCitiesFragment();
+        } else {
+            showCityFragment();
         }
     }
 
@@ -152,13 +170,28 @@ public class CitiesActivity extends SherlockFragmentActivity
         getSupportActionBar().setTitle(getString(R.string.title_cities_fragment));
     }
 
+    private void showCityFragment() {
+        showingList = false;
+        fragment = ResultFragment.newInstance();
+        fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(getString(R.string.title_city_fragment));
+    }
+
     private void showCityFragment(String[] cityDetails) {
         showingList = false;
-        fragment = CityFragment.newInstance(cityDetails[0], cityDetails[1], cityDetails[2],
+        fragment = ResultFragment.newInstance(cityDetails[0], cityDetails[1], cityDetails[2],
                 cityDetails[3], cityDetails[4]);
         fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(getString(R.string.title_city_fragment));
+    }
+
+    public void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm.isActive() && ((CitiesFragment)fragment).cityEdit.hasFocus()) {
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
     }
 
     private final class MyActionMode implements ActionMode.Callback {

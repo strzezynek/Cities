@@ -7,6 +7,7 @@ import android.util.Log;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.example.tomek.cities.model.City;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,8 @@ public class CitiesApp extends Application {
     private RequestQueue mRequestQueue;
 
     private List<String> citiesNames;
+
+    public City[] citiesFound;
 
     public void onCreate() {
         super.onCreate();

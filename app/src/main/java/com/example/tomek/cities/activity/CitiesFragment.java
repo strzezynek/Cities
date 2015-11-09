@@ -29,9 +29,11 @@ public class CitiesFragment extends SherlockFragment {
 
     private static final String TAG = CitiesFragment.class.getSimpleName();
 
+    private static final String ARG_CITY_EDIT_FOCUS = "city_edit_focus";
+
     private CitiesApp app;
 
-    private EditText cityEdit;
+    public EditText cityEdit;
     private ImageButton addCityBtn;
     private ListView citiesList;
     private CityCursorAdapter cityAdapter;
@@ -66,9 +68,18 @@ public class CitiesFragment extends SherlockFragment {
             @Override
             public void onClick(View view) {
                 if (isCityEditFilled()) {
-                    addCity(cityEdit.getText().toString());
+                    String cityName = cityEdit.getText().toString().trim();
+                    Log.d(TAG, cityName);
+                    if (!isCityOnList(cityName)) {
+                        addCity(cityName);
+                        showCityList();
+                        cityEdit.clearFocus();
+                        ((CitiesActivity)getActivity()).hideKeyboard();
+                    } else {
+                        Toast.makeText(getActivity(), getString(R.string.toast_already_on_list),
+                                Toast.LENGTH_SHORT).show();
+                    }
                     cityEdit.setText("");
-                    showCityList();
                 } else {
                     Toast.makeText(getActivity(), getString(R.string.toast_enter_city),
                             Toast.LENGTH_SHORT).show();
@@ -83,10 +94,12 @@ public class CitiesFragment extends SherlockFragment {
         citiesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
+                ((CitiesActivity)getActivity()).hideKeyboard();
                 cityCursor.moveToPosition(pos);
                 String cityName = cityCursor.getString(
                         cityCursor.getColumnIndexOrThrow(City.CityColumns.NAME));
                 selectedListener.onItemSelected(cityName);
+
             }
         });
         citiesList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -122,14 +135,32 @@ public class CitiesFragment extends SherlockFragment {
         longClickListener = null;
     }
 
-    private void addCity(String cityName) {
-        Log.d(TAG, "Adding city to db");
-        getActivity().getContentResolver().insert(CityProvider.CONTENT_URI, getContentValues());
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(ARG_CITY_EDIT_FOCUS, cityEdit.hasFocus());
     }
 
-    private ContentValues getContentValues() {
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            boolean hasFocus = savedInstanceState.getBoolean(ARG_CITY_EDIT_FOCUS, true);
+            if (hasFocus) {
+                cityEdit.requestFocus();
+            } else {
+                cityEdit.clearFocus();
+                ((CitiesActivity)getActivity()).hideKeyboard();
+            }
+        }
+    }
+
+    private void addCity(String cityName) {
+        getActivity().getContentResolver().insert(CityProvider.CONTENT_URI, getContentValues(cityName));
+    }
+
+    private ContentValues getContentValues(String cityName) {
         ContentValues values = new ContentValues();
-        values.put(City.CityColumns.NAME, cityEdit.getText().toString());
+        values.put(City.CityColumns.NAME, cityName);
         return values;
     }
 
@@ -149,8 +180,21 @@ public class CitiesFragment extends SherlockFragment {
         showCityList();
     }
 
+    public boolean isCityOnList(String cityName) {
+        String[] projection = {City.CityColumns._ID};
+        String selection = City.CityColumns.NAME + " = ?";
+        String[] selectionArgs = {cityName};
+        cityCursor = getActivity().getContentResolver().query(CityProvider.CONTENT_URI, projection,
+                selection, selectionArgs, null);
+        if (cityCursor.getCount() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private boolean isCityEditFilled() {
-        return !cityEdit.getText().toString().equals("");
+        return !cityEdit.getText().toString().equals("") && cityEdit.getText().toString().trim().length() > 0;
     }
 
     public void showCityList(){

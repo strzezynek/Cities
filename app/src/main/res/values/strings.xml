@@ -18,5 +18,6 @@
 
     <string name="toast_enter_city">Podaj nazwę miasta</string>
     <string name="toast_wrong_city">Nazwa miasta niepoprawna</string>
+    <string name="toast_already_on_list">Miasto znajduje się już na liście</string>
 
 </resources>
