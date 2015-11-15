@@ -166,16 +166,12 @@ public class CitiesActivity extends SherlockFragmentActivity
         showingList = true;
         fragment = CitiesFragment.newInstance();
         fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        getSupportActionBar().setTitle(getString(R.string.title_cities_fragment));
     }
 
     private void showCityFragment() {
         showingList = false;
         fragment = ResultFragment.newInstance();
         fm.beginTransaction().replace(R.id.content_frame, fragment).commit();
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(getString(R.string.title_city_fragment));
     }
 
     private void showCityFragment(String[] cityDetails) {

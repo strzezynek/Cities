@@ -62,6 +62,9 @@ public class CitiesFragment extends SherlockFragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_cities, container, false);
 
+        ((CitiesActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        ((CitiesActivity)getActivity()).getSupportActionBar().setTitle(getString(R.string.title_cities_fragment));
+
         cityEdit = (EditText) rootView.findViewById(R.id.city_name_edit);
         addCityBtn = (ImageButton) rootView.findViewById(R.id.add_city_btn);
         addCityBtn.setOnClickListener(new View.OnClickListener() {

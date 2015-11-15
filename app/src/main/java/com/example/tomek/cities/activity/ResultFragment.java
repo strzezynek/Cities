@@ -70,6 +70,9 @@ public class ResultFragment extends SherlockFragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_result, container, false);
 
+        ((CitiesActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((CitiesActivity)getActivity()).getSupportActionBar().setTitle(getString(R.string.title_city_fragment));
+
         pagerAdapter = new PagerAdapter(getActivity().getSupportFragmentManager());
         viewPager = (ViewPager) rootView.findViewById(R.id.pager);
         viewPager.setAdapter(pagerAdapter);
@@ -125,10 +128,12 @@ public class ResultFragment extends SherlockFragment {
         public View onCreateView(LayoutInflater inflater,
                                  ViewGroup container, Bundle savedInstanceState) {
 
-            View rootView = inflater.inflate(
-                    R.layout.fragment_city, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_city, container, false);
             Bundle args = getArguments();
             int cityNum = args.getInt(ARG_CITY_NUM);
+            if (cityNum >= CitiesApp.getInstance().citiesFound.length) {
+                cityNum = 0;
+            }
             City city = CitiesApp.getInstance().citiesFound[cityNum];
             return fillCityData(rootView, city);
         }
